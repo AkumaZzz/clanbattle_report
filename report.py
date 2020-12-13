@@ -22,9 +22,9 @@ constellation_name = ['？？？', '水瓶', '双鱼', '白羊', '金牛', '双�
 cycle_data = {
     'cn': {
         'cycle_mode': 'days',
-        'cycle_days': 28,
-        'base_date': datetime.date(2020, 7, 28),  #从巨蟹座开始计算
-        'base_month': 5,
+        'cycle_days': 27,
+        'base_date': datetime.date(2020, 11, 17),  #从天蝎开始计算
+        'base_month': 9,
         'battle_days': 6,
         'reserve_days': 0
     },
@@ -41,7 +41,7 @@ cycle_data = {
         'cycle_days': 0,
         'base_date': None,
         'base_month': 7,
-        'battle_days': 6,
+        'battle_days': 5,
         'reserve_days': 1
     }
 }
@@ -285,7 +285,8 @@ def generate_report(data):
     else: #0 ~ battle_days-1
         current_days += 1
 
-    for i in range(0, len(challenge_list)):
+    i = 0
+    while i < len(challenge_list):
         challenge = challenge_list[i]
         total_damage += challenge['damage']
         times_to_boss[challenge['boss']] += 1
@@ -296,7 +297,7 @@ def generate_report(data):
             truetimes_to_boss[challenge['boss']] += 1
             total_challenge += 1
         elif challenge['type'] == 1: #尾刀
-            if (i + 1) < len(challenge_list) and challenge_list[i+1]['type'] == 2: #下一刀是补偿刀
+            if (i + 1) < len(challenge_list) and challenge_list[i+1]['type'] != 0: #下一刀不是普通刀
                 next_challenge = challenge_list[i+1]
                 if challenge['damage'] > next_challenge['damage']:
                     damage_to_boss[challenge['boss']] += challenge['damage']
@@ -306,10 +307,12 @@ def generate_report(data):
                     damage_to_boss[next_challenge['boss']] += challenge['damage']
                     damage_to_boss[next_challenge['boss']] += next_challenge['damage']
                     truetimes_to_boss[next_challenge['boss']] += 1
+                i += 1 #跳过下一条数据
             else:
                 damage_to_boss[challenge['boss']] += challenge['damage']
                 truetimes_to_boss[challenge['boss']] += 1
             total_challenge += 1
+        i += 1
 
     if current_days * 3 < total_challenge: #如果会战排期改变 修正天数数据
         current_days =  math.ceil(float(total_challenge) / 3)
