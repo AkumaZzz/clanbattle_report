@@ -161,7 +161,7 @@ def get_constellation(server='cn'):
         if month < 1:
             month = 12
         elif month > 12:
-          month -= 12
+            month -= 12
     else:   #天数周期循环 国服
         during_month = (today - cdata['base_date']).days // cdata['cycle_days']
         month = during_month + cdata['base_month']
@@ -236,26 +236,26 @@ async def send_report(bot, event, background = 0):
         uid = event['user_id']
     else:   #指定对象
         if not priv.check_priv(event,priv.ADMIN):
-            await bot.send(event, '查看指定用户的报告需要管理员权限', at_sender=True)
+            await bot.send(event, '查看指定用户的报告需要管理员权限')
             return
     #如果没有提供api就从设置中读取
     if url_valid.match(api_url) is None:
         api_url = load_group_api(event.group_id)
     if url_valid.match(api_url) is None:
-        await bot.send(event, f'API地址{api_url}错误,请提供正确的Yobot API地址', at_sender=True)
+        await bot.send(event, f'API地址{api_url}错误,请提供正确的Yobot API地址')
         return
     if not lmt.check(uid):
-        await bot.send(event, f'报告生成器冷却中,剩余时间{round(lmt.left_time(uid))}秒', at_sender=True)
+        await bot.send(event, f'报告生成器冷却中,剩余时间{round(lmt.left_time(uid))}秒')
         return
     lmt.start_cd(uid)
 
     result = await get_data_from_yobot(api_url, uid)
     if result['code'] != 0:
-        await bot.send(event, result['msg'], at_sender=True)
+        await bot.send(event, result['msg'])
         return
     result['background'] = background
     msg = generate_report(result)
-    await bot.send(event, msg, at_sender=True)
+    await bot.send(event, msg)
 
 def generate_report(data):
     if data['code'] != 0:
@@ -288,7 +288,6 @@ def generate_report(data):
     i = 0
     while i < len(challenge_list):
         challenge = challenge_list[i]
-        total_damage += challenge['damage']
         times_to_boss[challenge['boss']] += 1
         if challenge['damage'] == 0:    #掉刀
             lost_challenge += 1
@@ -313,6 +312,10 @@ def generate_report(data):
                 truetimes_to_boss[challenge['boss']] += 1
             total_challenge += 1
         i += 1
+
+    for i in range(len(challenge_list)):
+        challenge = challenge_list[i]
+        total_damage += challenge['damage']
 
     if current_days * 3 < total_challenge: #如果会战排期改变 修正天数数据
         current_days =  math.ceil(float(total_challenge) / 3)
@@ -452,27 +455,27 @@ async def create_clanbattle_report(bot, event: CQEvent):
 @sv.on_prefix(('设置工会api', '设置公会api'))
 async def set_clanbattle_api(bot, event: CQEvent):
     if not priv.check_priv(event,priv.ADMIN):
-        await bot.send(event, '该操作需要管理员权限', at_sender=True)
+        await bot.send(event, '该操作需要管理员权限')
         return
     api_url = event.message.extract_plain_text().strip()
     if url_valid.match(api_url) is None:
-        await bot.send(event, f'API地址{api_url}无效', at_sender=True)
+        await bot.send(event, f'API地址{api_url}无效')
         return
     save_group_api(event.group_id, api_url)
-    await bot.send(event, f'本群工会API已设置为 {api_url}', at_sender=True)
+    await bot.send(event, f'本群工会API已设置为 {api_url}')
 
 @sv.on_fullmatch(('查看工会api', '查看公会api'))
 async def get_clanbattle_api(bot, event: CQEvent):
     if not priv.check_priv(event,priv.ADMIN):
-        await bot.send(event, '该操作需要管理员权限', at_sender=True)
+        await bot.send(event, '该操作需要管理员权限')
         return
     api_url = load_group_api(event.group_id)
-    await bot.send(event, f'本群工会API为 {api_url}', at_sender=True)
+    await bot.send(event, f'本群工会API为 {api_url}')
 
 @sv.on_fullmatch(('清除工会api', '清除公会api'))
 async def delete_clanbattle_api(bot, event: CQEvent):
     if not priv.check_priv(event,priv.ADMIN):
-        await bot.send(event, '该操作需要管理员权限', at_sender=True)
+        await bot.send(event, '该操作需要管理员权限')
         return
     delete_group_api(event.group_id)
-    await bot.send(event, '本群工会API已清除', at_sender=True)
+    await bot.send(event, '本群工会API已清除')
